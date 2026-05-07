@@ -1,0 +1,101 @@
+# =============================================================================
+# CRA Backend - Application Configuration
+# =============================================================================
+# WHY YAML (.yml) instead of .properties?
+# YAML uses indentation to show hierarchy, making it much easier to read
+# than flat key=value properties files for complex configs.
+# =============================================================================
+
+spring:
+  application:
+    name: cra-backend   
+  datasource:
+    # ${ENV_VAR:default_value} syntax means:
+    #   → Use the environment variable if set (good for production/Docker)
+    #   → Fall back to the default value if not set (good for local dev)
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:cra_app}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: root
+    password: Root@123
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+    # HikariCP connection pool settings (HikariCP is the fastest Java connection pool)
+    hikari:
+      maximum-pool-size: 10        # max concurrent DB connections
+      minimum-idle: 2              # keep at least 2 connections open always
+      connection-timeout: 30000    # wait up to 30s for a connection before failing
+      idle-timeout: 600000         # close idle connections after 10 minutes
+      pool-name: CraHikariPool
+
+  # ---------------------------------------------------------------------------
+  # JPA / HIBERNATE CONFIGURATION
+  # ---------------------------------------------------------------------------
+  jpa:
+    # Which SQL dialect to use — tells Hibernate exactly how to generate MySQL 8 SQL
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+
+    # show-sql: true prints every SQL query to your console — very helpful for debugging
+    # Turn this OFF in production (it's slow and noisy)
+    show-sql: true
+
+    properties:
+      hibernate:
+        # Format the printed SQL so it's readable (multi-line with indentation)
+        format_sql: true
+
+    hibernate:
+      ddl-auto: update
+      # DDL (Data Definition Language) controls how Hibernate manages your database schema:
+      #
+      # none     → do nothing, you manage schema manually (use in production with Flyway)
+      # validate → check that your entity fields match the DB columns, crash if not
+      # update   → auto-add new columns/tables but NEVER delete existing ones (safe for dev)
+      # create   → DROP and recreate all tables on every startup (destroys data!)
+      # create-drop → create on start, drop on shutdown (only for tests)
+      #
+      # We use "update" now — safe for development. We'll switch to "none" + Flyway later.
+
+# =============================================================================
+# SERVER CONFIGURATION
+# =============================================================================
+server:
+  port: 8080   # Your API is accessible at http://localhost:8080
+
+# =============================================================================
+# ACTUATOR CONFIGURATION
+# =============================================================================
+# Actuator adds free monitoring endpoints. By default most are hidden for security.
+# We expose health and info for now.
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics   # Which actuator endpoints to expose
+      base-path: /actuator             # All actuator endpoints live under /actuator
+  endpoint:
+    health:
+      show-details: always             # Show full health details (DB status, disk, etc.)
+  info:
+    env:
+      enabled: true                    # Allow info endpoint to show app metadata
+
+# =============================================================================
+# APPLICATION INFO (shown at /actuator/info)
+# =============================================================================
+info:
+  app:
+    name: CRA Backend
+    description: Climate Risk Assessment Backend Service
+    version: 0.0.1-SNAPSHOT
+
+# =============================================================================
+# LOGGING CONFIGURATION
+# =============================================================================
+logging:
+  level:
+    # Show SQL parameters (the actual values in queries, not just ?)
+    org.hibernate.type.descriptor.sql: TRACE
+    # Your own code logs at DEBUG level so you see detailed output during development
+    com.cra.backend: DEBUG
+  pattern:
+    # Log format: timestamp [thread] LEVEL logger - message
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
