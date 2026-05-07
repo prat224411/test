@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+             https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <!--
+        PARENT: Spring Boot provides a "parent POM" that manages dependency versions for you.
+        You don't have to specify versions for most Spring libraries — the parent handles it.
+        This avoids version conflicts and keeps your build clean.
+    -->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.3.0</version>
+        <relativePath/>
+    </parent>
+
+    <!--
+        GROUP ID:  like a namespace for your project (usually reverse of your domain)
+        ARTIFACT ID: the name of this specific module/service
+        VERSION: your project's current version; SNAPSHOT = still in development
+    -->
+    <groupId>com.cra</groupId>
+    <artifactId>cra-backend</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <name>cra-backend</name>
+    <description>Climate Risk Assessment Backend Service</description>
+
+    <properties>
+        <!-- Tell Maven to compile with Java 21 -->
+        <java.version>21</java.version>
+    </properties>
+
+    <dependencies>
+
+        <!--
+            SPRING WEB:
+            Adds the web server (embedded Tomcat) + REST support.
+            Without this, your app can't serve HTTP requests.
+            Enables @RestController, @GetMapping, @PostMapping, ResponseEntity, etc.
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!--
+            SPRING DATA JPA:
+            Gives you JPA (Java Persistence API) support backed by Hibernate.
+            Enables @Entity, @Repository, JpaRepository interface, JPQL queries.
+            Basically: lets you talk to the database with Java objects instead of raw SQL.
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+        <!--
+            VALIDATION:
+            Enables bean validation annotations: @NotBlank, @NotNull, @Size, @Email, etc.
+            Used on your DTOs to validate incoming API request data automatically.
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
+        <!--
+            ACTUATOR:
+            Adds production-ready monitoring endpoints for free.
+            /actuator/health  → shows if your app is up
+            /actuator/info    → shows app metadata
+            /actuator/metrics → shows performance counters
+            Very useful in production environments.
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <!--
+            MYSQL DRIVER:
+            The JDBC driver that lets your app physically connect to MySQL.
+            Spring Data JPA uses this under the hood to send SQL to your database.
+            runtime scope = only needed when the app is actually running, not at compile time.
+        -->
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!--
+            LOMBOK:
+            A code-generation library that removes boilerplate Java code.
+            @Data       → generates getters, setters, equals, hashCode, toString
+            @Builder    → generates builder pattern
+            @NoArgsConstructor / @AllArgsConstructor → generates constructors
+            @Slf4j      → injects a Logger field automatically
+            optional=true means it's only needed at compile time (annotation processing), not at runtime.
+        -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!--
+            DEVTOOLS:
+            Developer convenience tool only. Enables:
+            - Hot reload: restarts the app automatically when you change code
+            - Faster development cycles
+            optional=true ensures it is NOT packaged into the final production JAR.
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <scope>runtime</scope>
+            <optional>true</optional>
+        </dependency>
+
+        <!--
+            SPRING BOOT TEST STARTER:
+            Included by default from the parent. Brings in JUnit 5, Mockito, etc.
+            We are not writing tests yet but keeping it here is standard practice.
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!--
+                SPRING BOOT MAVEN PLUGIN:
+                Packages your application as a single runnable "fat JAR"
+                (all dependencies bundled together).
+                Command: mvn spring-boot:run   → runs locally
+                Command: mvn clean package     → builds the jar
+                The exclude for Lombok ensures it doesn't end up in the final JAR.
+            -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
